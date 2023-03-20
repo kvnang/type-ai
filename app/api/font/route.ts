@@ -65,9 +65,7 @@ async function getResponse(message: string) {
   };
 
   try {
-    console.log("Fetching response");
     const response = await fetchFromApi(body);
-    console.log("DONE Fetching response");
 
     try {
       const { message, recommendation } = JSON.parse(response);
@@ -114,17 +112,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "No message provided" });
   }
 
-  console.log("getting sample text");
-  const { sample } = await getSampleText(message);
-  console.log("DONE getting sample text");
-
-  const { message: responseMessage, recommendation } = await getResponse(
-    message
-  );
+  const [sample, response] = await Promise.all([
+    getSampleText(message),
+    getResponse(message),
+  ]);
 
   return NextResponse.json({
-    message: responseMessage,
-    recommendation,
-    sample,
+    message: response.message,
+    recommendation: response.recommendation,
+    sample: sample.sample,
   });
 }
