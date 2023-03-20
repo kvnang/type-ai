@@ -70,7 +70,7 @@ export function Form() {
               name="message"
               id="message"
               rows={4}
-              placeholder="Message"
+              placeholder="I need two fonts for a restaurant website with traditional Mexican cuisine, preferably with a handwritten feel."
               className="rounded-md w-full px-4 py-2 bg-white shadow-md resize-y disabled:bg-slate-100 disabled:text-slate-400"
               required
               disabled={loading}
