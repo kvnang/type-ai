@@ -19,9 +19,12 @@ export function Form() {
     const response = await fetch(form.action, {
       method: form.method,
       headers: {
-        "Content-Type": form.enctype,
+        "Content-Type": "application/json",
       },
-      body: new URLSearchParams(formData as URLSearchParams).toString(),
+      // body: new URLSearchParams(formData as URLSearchParams).toString(),
+      body: JSON.stringify({
+        message: formData.get("message"),
+      }),
     });
 
     const _result = await response.json();
@@ -83,7 +86,9 @@ export function Form() {
             disabled={loading}
             className="disabled:opacity-50 disabled:pointer-events-none inline-flex items-center"
           >
-            <span>Generate</span>{" "}
+            <span>
+              {loading ? "Generating ... please wait a moment" : "Generate"}
+            </span>{" "}
             {loading ? <Spinner className="ml-2" /> : null}
           </button>
         </div>

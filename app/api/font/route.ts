@@ -107,8 +107,9 @@ async function getResponse(message: string) {
 }
 
 export async function POST(request: Request) {
-  const formData = await request.formData();
-  const message = formData.get("message") as string;
+  const formData = await request.json();
+  // const message = formData.get("message") as string;
+  const message = formData.message as string;
 
   if (!message) {
     return NextResponse.json({ message: "No message provided" });
