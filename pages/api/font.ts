@@ -30,6 +30,8 @@ async function getResponse(message: string) {
   try {
     const response = await fetchOpenAI(body);
 
+    console.log("initial response", response);
+
     try {
       const { message, recommendation } = JSON.parse(response);
       return { message, recommendation };
@@ -67,7 +69,7 @@ async function getResponse(message: string) {
   }
 }
 
-export async function POST(request: Request) {
+export default async function POST(request: Request) {
   const formData = await request.formData();
   const message = formData.get("message") as string;
 

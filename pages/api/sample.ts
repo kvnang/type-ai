@@ -20,7 +20,7 @@ async function getSampleText(message: string) {
   return JSON.parse(JSON.stringify({ sample: response }));
 }
 
-export async function POST(request: Request) {
+export default async function POST(request: Request) {
   const formData = await request.formData();
   const message = formData.get("message") as string;
 
