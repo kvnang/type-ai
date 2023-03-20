@@ -1,6 +1,7 @@
+import { fetchOpenAI } from "@/lib/openai";
 import { NextResponse } from "next/server";
 
-// export const runtime = "edge";
+export const runtime = "experimental-edge";
 
 const system = {
   role: "system",
@@ -11,47 +12,9 @@ const system = {
    'recommendation': an array of objects with the font category (e.g. heading, body), the font name, and appropriate font weight (e.g. {category: 'heading', name: 'Roboto', weight: 700}),
   And ensure that the JSON object is the only thing in the response and is valid and properly escaped.`,
 };
-
-const headers = {
-  Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-  "Content-Type": "application/json",
-};
-
-const url = "https://api.openai.com/v1/chat/completions";
-
-async function fetchFromApi(body: unknown) {
-  const res = await fetch(url, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    throw new Error(
-      `Bad response from OpenAI API: ${res.status} ${res.statusText}`
-    );
-  }
-  const result = await res.json();
-  return result?.choices?.[0]?.message?.content;
-}
-
-async function getSampleText(message: string) {
-  const body = {
-    model: "gpt-3.5-turbo",
-    temperature: 1.5,
-    messages: [
-      {
-        role: "user",
-        content: `Respond with a Markdown string only. Try to combine various headings (#, ##, ###). Please write a 300-word essay with a subtle, witty reference to this message: ${message}`,
-      },
-    ],
-  };
-
-  const response = await fetchFromApi(body);
-
-  return JSON.parse(JSON.stringify({ sample: response }));
-}
-
 async function getResponse(message: string) {
+  console.log("Getting font ...");
+
   const body = {
     model: "gpt-3.5-turbo",
     temperature: 1.5,
@@ -65,7 +28,7 @@ async function getResponse(message: string) {
   };
 
   try {
-    const response = await fetchFromApi(body);
+    const response = await fetchOpenAI(body);
 
     try {
       const { message, recommendation } = JSON.parse(response);
@@ -80,7 +43,7 @@ async function getResponse(message: string) {
           (e as Error).message
         }". Please respond with just a JSON object, without any explanation nor sorry, and nothing else.`,
       });
-      const retriedResponse = await fetchFromApi(body);
+      const retriedResponse = await fetchOpenAI(body);
 
       // sometimes the AI returns a message in markdown format, with the JSON object after a paragraph text
       // Get JSON from response using regex
@@ -112,14 +75,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "No message provided" });
   }
 
-  const [sample, response] = await Promise.all([
-    getSampleText(message),
-    getResponse(message),
-  ]);
+  const response = await getResponse(message);
 
   return NextResponse.json({
     message: response.message,
     recommendation: response.recommendation,
-    sample: sample.sample,
   });
 }

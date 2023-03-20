@@ -4,6 +4,36 @@ import * as React from "react";
 import { Spinner } from "@/components/Spinner";
 import ReactMarkdown from "react-markdown";
 
+const fetchResponse = async (form: HTMLFormElement) => {
+  const formData = new FormData(form);
+  const response = await fetch(form.action, {
+    method: form.method,
+    headers: {
+      "Content-Type": form.enctype,
+    },
+    body: new URLSearchParams(formData as URLSearchParams).toString(),
+  });
+
+  const json = await response.json();
+  console.log(json);
+  return json;
+};
+
+const fetchSample = async (form: HTMLFormElement) => {
+  const formData = new FormData(form);
+  const response = await fetch("/api/sample", {
+    method: form.method,
+    headers: {
+      "Content-Type": form.enctype,
+    },
+    body: new URLSearchParams(formData as URLSearchParams).toString(),
+  });
+
+  const json = await response.json();
+  console.log(json);
+  return json;
+};
+
 export function Form() {
   const [loading, setLoading] = React.useState(false);
   const [result, setResult] = React.useState<Record<string, any>>({});
@@ -14,18 +44,18 @@ export function Form() {
     setLoading(true);
 
     const form = event.currentTarget;
-    const formData = new FormData(form);
 
-    const response = await fetch(form.action, {
-      method: form.method,
-      headers: {
-        "Content-Type": form.enctype,
-      },
-      body: new URLSearchParams(formData as URLSearchParams).toString(),
+    const [response, sample] = await Promise.all([
+      fetchResponse(form),
+      fetchSample(form),
+    ]);
+
+    console.log("DONE");
+
+    setResult({
+      ...response,
+      sample,
     });
-
-    const _result = await response.json();
-    setResult(_result);
 
     setLoading(false);
   };
