@@ -19,12 +19,9 @@ export function Form() {
     const response = await fetch(form.action, {
       method: form.method,
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": form.enctype,
       },
-      // body: new URLSearchParams(formData as URLSearchParams).toString(),
-      body: JSON.stringify({
-        message: formData.get("message"),
-      }),
+      body: new URLSearchParams(formData as URLSearchParams).toString(),
     });
 
     const _result = await response.json();
